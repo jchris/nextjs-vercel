@@ -2,10 +2,57 @@ import Head from 'next/head'
 import Image from 'next/image'
 import { Inter } from '@next/font/google'
 import styles from '@/styles/Home.module.css'
+import * as Client from '@ucanto/client'
+import { ed25519 } from "@ucanto/principal"
+import * as CAR from "@ucanto/transport/car"
+import * as CBOR from "@ucanto/transport/cbor"
+import * as HTTP from "@ucanto/transport/http"
+
+
+import { useEffect } from 'react'
+
+const SERVICE_DID = 'did:key:z6MkihSXLdVtpyesztTVX1jwjiizVcYKxvqPZdt5wkiEGt61'
+const SERVICE_URL = 'http://localhost:3000/api/echo'
+const CLIENT_SECRET = 'MgCZHK1b9k2hX2b8HOV3pHuo9XESwWNxU7urEnKlUSzRsPu0BPxC6HX8GIxwbb3ymgUsIYWHgxRxDqEWDUgLhSzRZDdY='
+    // TODO load a client keypair from local storage 
+    // or generate a new one if none exists
+    // POST the client DID to the service delegate endpoint
+    // to get a delegation to invoke the echo capability
 
 const inter = Inter({ subsets: ['latin'] })
-
 export default function Home() {
+  useEffect(() => {
+    // parse the client secret to create an issuer
+    const issuer = ed25519.Signer.parse(CLIENT_SECRET)
+
+    // parse the SERVICE_DID into a principal
+    const servicePrincipal = ed25519.Verifier.parse(SERVICE_DID)
+
+
+    // invoke the echo capability
+    console.log({issuer})
+    async function doInvoke(connection) {
+      const invocation = await Client.invoke({
+        issuer,
+        audience: servicePrincipal,
+        capability : {
+          can : 'echo/did',
+          with : 'https://example.com'
+        }
+      })
+      console.log({invocation})
+      const result = await invocation.execute(connection)
+      console.log({result})
+    }
+    console.log({SERVICE_URL})
+    const connection = Client.connect({
+      encoder: CAR, // encode as CAR because server decods from car
+      decoder: CBOR, // decode as CBOR because server encodes as CBOR
+      channel: HTTP.open({ url: new URL(SERVICE_URL) })
+    })
+
+    doInvoke(connection)
+  }, [])
   return (
     <>
       <Head>

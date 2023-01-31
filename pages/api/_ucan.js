@@ -9,7 +9,7 @@ const Signer = ed25519.Signer
 const Echo = capability({
   can: 'echo/did',
   with: URI.match({ protocol: 'https:' }),
-  derives: (claimed, delegated) => true
+//   derives: (claimed, delegated) => true
 })
 
 const service = (context) => {
@@ -25,11 +25,13 @@ const service = (context) => {
 }
 
 export const server = async (context = {count : 0}) => {
-  const serverId = await Signer.derive(process.env.SERVICE_SECRET)
-  return Server.create({
+  const serverId = await Signer.parse(process.env.SERVICE_SECRET)
+  const server =  Server.create({
     id: serverId,
     service: service(context),
     decoder: CAR,
     encoder: CBOR,
   })
+  console.log({did : serverId.did()})
+  return server
 }

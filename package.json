@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@next/font": "13.1.5",
+    "@ucanto/client": "^4.2.3",
     "@ucanto/principal": "^4.2.3",
     "@ucanto/server": "^4.2.3",
     "@ucanto/transport": "^4.2.3",
