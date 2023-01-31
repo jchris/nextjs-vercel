@@ -29,6 +29,14 @@ export default function Home() {
     const servicePrincipal = ed25519.Verifier.parse(SERVICE_DID)
 
 
+    // get a delegation from the delegate endpoint
+    // TODO POST the client DID to the service delegate endpoint
+    // to get a delegation to invoke the echo capability
+    
+    async function getDelegation(connection) {
+      const delegz = await fetch(`${SERVICE_URL}/delegate`)
+    }
+
     // invoke the echo capability
     console.log({issuer})
     async function doInvoke(connection) {
@@ -38,10 +46,12 @@ export default function Home() {
         capability : {
           can : 'echo/did',
           with : 'https://example.com'
-        }
+        },
+        // proofs: [delegation]
       })
-      console.log({invocation})
-      const result = await invocation.execute(connection)
+
+      console.log({d:invocation.delegate()})
+      const result = await connection.execute([invocation])
       console.log({result})
     }
     console.log({SERVICE_URL})
@@ -53,6 +63,7 @@ export default function Home() {
 
     doInvoke(connection)
   }, [])
+
   return (
     <>
       <Head>

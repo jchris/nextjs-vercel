@@ -4,6 +4,7 @@ import { server } from "./_ucan"
 
 const serverContext = { count: 0 }
 const echoServer = server(serverContext)
+console.log("echoServerDID", echoServer.id.did())
 
 export default function handler(request, response) {
 // this should give the reqeuster did a delegation to use the echo service
