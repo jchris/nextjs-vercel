@@ -12,7 +12,7 @@ import * as HTTP from "@ucanto/transport/http"
 import { useEffect } from 'react'
 
 const SERVICE_DID = 'did:key:z6MkihSXLdVtpyesztTVX1jwjiizVcYKxvqPZdt5wkiEGt61'
-const SERVICE_URL = 'http://localhost:3000/api/echo'
+const SERVICE_URL = 'http://localhost:3000/api'
 const CLIENT_SECRET = 'MgCZHK1b9k2hX2b8HOV3pHuo9XESwWNxU7urEnKlUSzRsPu0BPxC6HX8GIxwbb3ymgUsIYWHgxRxDqEWDUgLhSzRZDdY='
     // TODO load a client keypair from local storage 
     // or generate a new one if none exists
@@ -21,7 +21,7 @@ const CLIENT_SECRET = 'MgCZHK1b9k2hX2b8HOV3pHuo9XESwWNxU7urEnKlUSzRsPu0BPxC6HX8G
 
 const inter = Inter({ subsets: ['latin'] })
 export default function Home() {
-  useEffect(() => {
+  useEffect(() => { 
     // parse the client secret to create an issuer
     const issuer = ed25519.Signer.parse(CLIENT_SECRET)
 
@@ -35,11 +35,13 @@ export default function Home() {
     
     async function getDelegation(connection) {
       const delegz = await fetch(`${SERVICE_URL}/delegate`)
+      console.log({delegz})
     }
 
     // invoke the echo capability
-    console.log({issuer})
+    // console.log({issuer})
     async function doInvoke(connection) {
+      const delegation = await(getDelegation(connection))
       const invocation = await Client.invoke({
         issuer,
         audience: servicePrincipal,
@@ -47,20 +49,20 @@ export default function Home() {
           can : 'echo/did',
           with : 'https://example.com'
         },
-        // proofs: [delegation]
+        proofs: [delegation]
       })
 
-      console.log({d:invocation.delegate()})
+      console.log('invocation', invocation)
       const result = await connection.execute([invocation])
-      console.log({result})
+      console.log('result', result)
     }
-    console.log({SERVICE_URL})
+    // console.log({SERVICE_URL})
     const connection = Client.connect({
       encoder: CAR, // encode as CAR because server decods from car
       decoder: CBOR, // decode as CBOR because server encodes as CBOR
       channel: HTTP.open({ url: new URL(SERVICE_URL) })
     })
-
+    console.log("useEffect invoke", connection)
     doInvoke(connection)
   }, [])
 

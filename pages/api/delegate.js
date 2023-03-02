@@ -3,15 +3,24 @@
 import { server } from "./_ucan"
 
 const serverContext = { count: 0 }
-const echoServer = server(serverContext)
-console.log("echoServerDID", echoServer.id.did())
+var echoServer;
+server(serverContext).then(theServer => {
+  echoServer = theServer;
+  // console.log("echoServerDID", echoServer.id)
+
+})
+
+
 
 export default function handler(request, response) {
 // this should give the reqeuster did a delegation to use the echo service
+var enc = new TextEncoder();
+// console.log('request',  request)
   echoServer.request({
-    headers: request.headers,
-    body: request.body,
+    headers: {'content-type':'application/car',...request.headers},
+    body: enc.encode(request.body),
   }).then(({ headers, body }) => {
+// console.log('response', headers, body)
     response.writeHead(200, headers)
     response.write(body)
     response.end()

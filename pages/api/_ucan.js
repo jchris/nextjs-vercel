@@ -25,6 +25,7 @@ const service = (context) => {
 }
 
 export const server = async (context = {count : 0}) => {
+  // console.log('SERVICE_SECRET', process.env.SERVICE_SECRET)
   const serverId = await Signer.parse(process.env.SERVICE_SECRET)
   const server =  Server.create({
     id: serverId,
